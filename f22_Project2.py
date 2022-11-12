@@ -160,7 +160,14 @@ def get_detailed_listing_database(html_file):
         ...
     ]
     """
-    pass
+
+    # Use get_listings_from_search_results and get_listing_information to get the data and return it as a list
+    listings = get_listings_from_search_results(html_file)
+    detailed_listings = []
+    for listing in listings:
+        detailed_listings.append(listing + get_listing_information(listing[2]))
+    return detailed_listings
+
 
 
 def write_csv(data, filename):
