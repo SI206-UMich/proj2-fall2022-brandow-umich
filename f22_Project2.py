@@ -1,3 +1,6 @@
+# Name: Brandon Watson
+# UMID: 76996200
+# SOLO
 import csv
 import os
 from bs4 import BeautifulSoup
@@ -56,24 +59,18 @@ def get_listings_from_search_results(html_file):
                                      None))
 
         # regex to find the listing id
-        # pattern = r'www.airbnb.com/rooms/p?l?u?s?\/?([0-9]+)\?'  #
-        # TODO: fix this regex
-        pattern = r'www.airbnb.com/rooms/([0-9]+|[0-9_reviews]+)'
+        pattern = r'www.airbnb.com/rooms/[a-z]*\/?([0-9]+)\?'
 
+        # The listing ids are in the urls.
         ids = []
-        for url in urls:
-            matches = re.findall(pattern,
-                                  url)
-            for id in matches:
-                ids.append(id)
+        for url, id in zip(urls, re.findall(pattern, str(urls))):
+            ids.append(id)
 
         # Consolidate the three lists into a list of tuples.
         listings = list(zip(titles,
                             costs,
                             ids))
         return listings
-
-
 
 
 def get_listing_information(listing_id):
@@ -102,24 +99,51 @@ def get_listing_information(listing_id):
     """
 
     # Load the file data from the variable html_file into BeautifulSoup.
-    with open('html_files/listing_' + listing_id + '.html',
-              'r') as f:
-        contents = f.read()
-        soup = BeautifulSoup(contents,
-                             'html.parser')
-        # Create a list
-        info_list = []
+    with open('html_files/listing_' + listing_id + '.html', encoding='utf8') as f:
+        soup = BeautifulSoup(f, 'html.parser')
 
-        # Get the policy number
+        # Find the policy numbers using the class 'f19phm7j dir dir-ltr'
+        policy_numbers = soup.find_all('li', class_='f19phm7j dir dir-ltr')
 
-        # Get the place type
+        # Loop through the policy numbers to check if any are pending or exempt
+        for policy_number in policy_numbers:
+            if 'pending'.casefold() in policy_number.text.casefold():
+                policy_number = 'Pending'
+            elif 'exempt'.casefold() in policy_number.text.casefold():
+                policy_number = 'Exempt'
+            else:
+                # extract just the number
+                policy_number = re.findall(r'([0-9]+)', policy_number.text)
+                # Convert the list to a string
+                policy_number = ''.join(policy_number)
 
-        # Get the number of bedrooms
+        # Check if the policy number is "Pending" or "Exempt"
+        if 'pending'.casefold() in policy_number:
+            policy_number = 'Pending'
+        elif 'exempt'.casefold() in policy_number:
+            policy_number = 'Exempt'
 
-        # Return the tuple
+        # Find the place type. Use h2 from class '_14i3z6h' and check if it contains "private" or "shared"
+        h2 = soup.find('h2', class_='_14i3z6h').text
+        if 'private'.casefold() in h2:
+            place_type = 'Private Room'
+        elif 'shared'.casefold() in h2:
+            place_type = 'Shared Room'
+        else:
+            place_type = 'Entire Room'
 
-        return info_list
+        # Find the number of bedrooms. Use li from class '17n41sf dir dir-ltr' and check if it contains "bedroom"
+        li = soup.find_all('li', class_='17n41sf dir dir-ltr')
+        # See if any of the li's contain "bedroom" and if so, get the number of bedrooms from the span
+        for item in li:
+            if 'bedroom'.casefold() in item.text:
+                num_rooms = int(item.find('span').text)
+                break
+        else:
+            num_rooms = 1
 
+       # Return the policy number, place type, and number of bedrooms as a tuple
+        return policy_number, place_type, num_rooms
 
 
 def get_detailed_listing_database(html_file):
@@ -202,11 +226,13 @@ def extra_credit(listing_id):
     """
     pass
 
+
 def main():
     """
     Write a main function that calls the functions you have written above.
     """
     print(get_listings_from_search_results('html_files/mission_district_search_results.html'))
+
 
 class TestCases(unittest.TestCase):
 
@@ -326,7 +352,6 @@ class TestCases(unittest.TestCase):
 
 
 if __name__ == '__main__':
-
     database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     write_csv(database,
               "airbnb_dataset.csv")
