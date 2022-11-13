@@ -1,0 +1,20 @@
+A) If I were a software developer either with SFPO or Airbnb.com, I would implement access to a database within SFPO.
+The database would have to include fips codes or some other determining factor for which locales would need proper licensing.
+Develop an API so that we can talk back and forth to verify license numbers. If there isn't a validation process in place, I
+would work with both teams to implement one. Verifying a set length of alphanumeric characters in a pattern (cue regex) as
+well as matching with SFPO's database.
+Arguments: Airbnb may not want to implement this and put it off as SFPO's responsibility. As Airbnb could lose listers that
+need to comply. Or they may say that we've violated ToS. SFPO may not want to put the resources into this development and
+could see this as a violating of ToS with Airbnb.
+
+B) What is the correlation between the number of Airbnb listings in a concentrated area and the value of homes?
+They may raise the values of homeowners but may very well hinder future buyers. Or vice versa. Or if there are
+listers that have homes rented out for long periods in relation to inadequate housing for those searching.
+
+C) I think that if you partake in web scraping, as long as the information is available in the code found on a public
+website, there is no harm. If you find a vulnerability and exploit it, if warned, weigh your pros and cons. Maybe see
+if there's a bug bounty before you back off. But, if you are going after private or encrypted information that you have
+to work towards 'breaking into', we broke the ethical plane.
+
+D) If it puts anyone at risk of harm or exploitation, don't get involved. And we should consider systemic patterns at
+all times to make sure we separate ourselves from that and continue on an ethical path.
